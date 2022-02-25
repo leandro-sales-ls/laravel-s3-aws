@@ -46,7 +46,7 @@ class S3FileStorage implements FileStorage {
     }
 
     public function find($id) {
-        return $this->s3Client->getObjectUrl($this->bucketName, $id);
+        return $this->s3Client->getObject(['Bucket' => $this->bucketName, 'Key'=>$id]);
     }
 
     public function uploadFile(array $params) {
