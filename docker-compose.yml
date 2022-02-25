@@ -1,6 +1,26 @@
 version: "3.8"
 
 services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: laravel-s3-aws_finn
+    environment:
+      - DEBUG=1
+      - SERVICES=s3
+      - AWS_DEFAULT_OUTPUT=json
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=minhaChave
+      - AWS_SECRET_ACCESS_KEY=minhaChaveSecreta
+      - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+    volumes:
+      - localstack_data:/tmp/localstack/data
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - finn
 
   api_project:
     container_name: api_project
@@ -15,18 +35,18 @@ services:
     working_dir: /var/www/
     volumes:
       - ./:/var/www
-    env_file: ./.env
     links:
       - mysql
+      - localstack
     networks:
       - finn
-  
+
   api_serve:
     image: nginx:alpine
     container_name: api_serve
-    depends_on: 
+    depends_on:
       - api_project
-    links: 
+    links:
       - api_project
     restart: unless-stopped
     ports:
@@ -42,22 +62,23 @@ services:
     container_name: mysql_laravel
     restart: unless-stopped
     tty: true
-    environment: 
-        MYSQL_DATABASE: ${DB_DATABASE}
-        MYSQL_USER: ${DB_USERNAME}
-        MYSQL_ROOT_PASSWORD: ${DB_PASSWORD_ROOT}
-        MYSQL_PASSWORD: ${DB_PASSWORD}
+    environment:
+        MYSQL_DATABASE: minha-base
+        MYSQL_USER: teste
+        MYSQL_ROOT_PASSWORD: 1qaz2wsx!@#
+        MYSQL_PASSWORD: 1qaz2wsx!@#1
         SERVICE_TAGS: dev
         SERVICE_NAME: mysql
-    volumes: 
+    volumes:
       - ./docker/mysql:/var/lib/mysql
-    ports: 
-      - ${DB_PORT}:3306
+    ports:
+      - 3306:3306
     networks:
       - finn
 
 volumes:
   mysql_laravel:
+  localstack_data:
 
 networks:
   finn:

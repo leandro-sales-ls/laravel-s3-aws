@@ -16,6 +16,8 @@ use App\Http\Controllers\Api\UploadController;
 */
 
 Route::post('upload', [UploadController::class, 'sendFile']);
+Route::post('list-files', [UploadController::class, 'listFiles']);
+Route::post('get-file', [UploadController::class, 'listFileId']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
